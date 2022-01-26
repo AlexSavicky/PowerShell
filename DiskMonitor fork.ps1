@@ -36,6 +36,7 @@ else {
     Write-Log -Text "Directory is already exist" -type INFO
 }
 
+#Блок проверки и создания вложенности папок \папка хранения отчета\год\месяц
 if(!(dir -directory "$reportPath\$year"))
 {
     New-Item -Path "$reportpath\$year" -ItemType Directory -Force
@@ -50,8 +51,8 @@ if(!(dir -directory "$reportPath\$year"))
         $MonthCount++
     }
 }
-get-childitem C:\DiskSpace_Report\* -include *.html | remove-item -Recurse -force
-get-childitem C:\DiskSpace_Report\* -include *.log | remove-item -Recurse -force
+#get-childitem C:\DiskSpace_Report\* -include *.html | remove-item -Recurse -force
+#get-childitem C:\DiskSpace_Report\* -include *.log | remove-item -Recurse -force
 # Параметры предупреждений в %
 $all = 101
 $percentWarning = 30
@@ -74,7 +75,7 @@ $computers = 'a-sec-ksc-01', 'A-SEC-MSCA', 'A-SEC-TMS', 'B-AvCA', 'B-AvsubCA', '
 $SMTPServer = "10.70.2.222"
 #$SMTPPort = "25"
 $Username = "DiskMonitor@gis.by"
-$to = "asavitski@gis.by"
+$to = "it-group@gis.by"
 
 $subject = "Servers Disks Space monitoring"
 $doctype ='<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" 
@@ -231,8 +232,10 @@ $tableDescription = "
 
 Add-Content $diskReport $tableDescription
 Add-Content $diskReport "</body></html>"
-if ($i -gt 0)
 
+
+
+if ($i -gt 0)
 {
     Write-Host "Sending email notification"
     Write-Log -Text "Sending Email notification" -Type INFO
@@ -255,25 +258,13 @@ $message.attachments.add($file)
 
 $smtp = New-Object System.Net.Mail.SmtpClient($SMTPServer, $SMTPPort);
 $smtp.Credentials = New-Object System.Net.NetworkCredential($Username, $Password);
-$smtp.send($message)
-#>
-if(!(dir -directory "$reportPath\$year"))
-{
-    New-Item -Path "$reportpath\$year" -ItemType Directory -Force
-    [datetime]$NewYear = "1/1"
-    $MonthCount = 1
-    while($MonthCount -le 12)
-    {
-        $MonthCount_MM = ("{0:D2}" -f $MonthCount).ToString()
-        $Month_MMMM = $NewYear.AddMonths($MonthCount-1).ToString("MMMM")
-        $MonthCount_MM = $MonthCount_MM + ' ' + $Month_MMMM
-        New-Item -Path "$reportPath\$Year\$MonthCount_MM" -ItemType Directory -Force
-        $MonthCount++
-    }
+$smtp.send($message)#>
 }
-$FileDir = dir -directory "$reportpath\$Year" | ? {$_.Name -like "$Mohth_MM*"}
-
-Move-Item "C:\DiskSpace_Report\DiskSpaceRpt-$datetime.html" $FileDir.PSPath -Force
-Move-Item "C:\DiskSpace_Report\DiskSpaceRpt-$datetime.log" $FileDir.PSPath -Force
-Write-Log -Text "Logreport and diskreport moving in $FileDir" -Type INFO
+$FileDir = dir -directory "$reportpath\$Year"
+foreach ($dir in $filedir)
+{
+ if ($dir -like "*$MonthCount_MM*") {
+    Move-Item -path "C:\DiskSpace_Report\*html" -Destination "$reportpath\$Year\$dir" -Force
+    Move-Item -path "C:\DiskSpace_Report\*log" -Destination "$reportpath\$Year\$dir" -Force
+ }
 }
