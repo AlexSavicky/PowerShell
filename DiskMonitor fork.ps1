@@ -67,9 +67,8 @@ $whiteColor = "#CCCCCC"
 $i = 0;
 
 # Список компьютеров для отчета
-$computers = 'a-sec-ksc-01', 'A-SEC-MSCA', 'A-SEC-TMS', 'B-AvCA', 'B-AvsubCA', 'secure', 'a-sec-ksc';
-#$computers = (get-adcomputer -filter {operatingsystem -like '*server*'}).name;
-#$Computers = 'BDCIMAPP';
+#$computers = 'a-sec-ksc-01', 'A-SEC-MSCA', 'A-SEC-TMS', 'B-AvCA', 'B-AvsubCA', 'secure', 'a-sec-ksc';
+$computers = (get-adcomputer -filter {operatingsystem -like '*server*'}).name;
 
 #E-mail settings
 $SMTPServer = "10.70.2.222"
