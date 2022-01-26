@@ -1,5 +1,6 @@
 #Получаем время в нужном формате
 $year=(get-date).year
+[string]$month=[system.string]::format($(get-date -format "MM"))
 $datetime = Get-Date -Format "yyyy-MM-dd HH-mm-ss";
 # Путь для хранения отчетов
 $reportPath = "C:\DiskSpace_Report\";
@@ -25,7 +26,7 @@ function Write-Log {
 }
 
 #проверка наличия папки
-if(!(test-path -path $reportPath)) {
+<#if(!(test-path -path $reportPath)) {
     
     New-item -ItemType Directory -path $Reportpath -Force -ErrorAction Stop
     write-host "Directory succesfully created"
@@ -34,7 +35,7 @@ if(!(test-path -path $reportPath)) {
 else {
     write-host "Directory is already exist"
     Write-Log -Text "Directory is already exist" -type INFO
-}
+}#>
 
 #Блок проверки и создания вложенности папок \папка хранения отчета\год\месяц
 if(!(dir -directory "$reportPath\$year"))
@@ -67,8 +68,9 @@ $whiteColor = "#CCCCCC"
 $i = 0;
 
 # Список компьютеров для отчета
-#$computers = 'a-sec-ksc-01', 'A-SEC-MSCA', 'A-SEC-TMS', 'B-AvCA', 'B-AvsubCA', 'secure', 'a-sec-ksc';
-$computers = (get-adcomputer -filter {operatingsystem -like '*server*'}).name;
+$computers = 'a-sec-ksc-01', 'A-SEC-MSCA', 'A-SEC-TMS', 'B-AvCA', 'B-AvsubCA', 'secure', 'a-sec-ksc';
+#$computers = (get-adcomputer -filter {operatingsystem -like '*server*'}).name;
+#$Computers = 'BDCIMAPP';
 
 #E-mail settings
 $SMTPServer = "10.70.2.222"
@@ -262,7 +264,7 @@ $smtp.send($message)#>
 $FileDir = dir -directory "$reportpath\$Year"
 foreach ($dir in $filedir)
 {
- if ($dir -like "*$MonthCount_MM*") {
+ if ($dir -like "*$Month*") {
     Move-Item -path "C:\DiskSpace_Report\*html" -Destination "$reportpath\$Year\$dir" -Force
     Move-Item -path "C:\DiskSpace_Report\*log" -Destination "$reportpath\$Year\$dir" -Force
  }
